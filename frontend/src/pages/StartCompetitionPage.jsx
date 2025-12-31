@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Play, Flag } from 'lucide-react';
 import DistanceEditModal from '../components/DistanceEditModal';
 
@@ -11,7 +11,9 @@ const RUN_TYPES = [
 export default function StartCompetitionPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [selectedRun, setSelectedRun] = useState(RUN_TYPES[0]);
+    const [searchParams] = useSearchParams();
+    const runParam = searchParams.get('run');
+    const [selectedRun, setSelectedRun] = useState(runParam || RUN_TYPES[0]);
     const [teams, setTeams] = useState([]);
     const [sortedTeams, setSortedTeams] = useState([]);
     const [editingTeam, setEditingTeam] = useState(null); // State for modal (only for editing)
@@ -75,6 +77,8 @@ export default function StartCompetitionPage() {
         // For Distance, navigate to the full scoring page
         if (selectedRun === 'Distance') {
             navigate(`/competition/${id}/score/distance/${team._id}`);
+        } else if (selectedRun === 'Multiple Challenge') {
+            navigate(`/competition/${id}/score/multiple/${team._id}`);
         } else {
             // For other run types, could open modal or navigate to other pages
             alert(`Scoring for ${selectedRun} not yet implemented`);
@@ -137,7 +141,10 @@ export default function StartCompetitionPage() {
                                     {team.registrations?.find(r => r.runType === selectedRun)?.status === 'completed' ? (
                                         <div className="flex items-center gap-4">
                                             <div className="text-green-600 font-bold text-xl">
-                                                {team.registrations.find(r => r.runType === selectedRun).totalScore.toFixed(1)} pts
+                                                {selectedRun === 'Multiple Challenge'
+                                                    ? `${team.registrations.find(r => r.runType === selectedRun).totalScore.toFixed(2)}s`
+                                                    : `${team.registrations.find(r => r.runType === selectedRun).totalScore.toFixed(1)} pts`
+                                                }
                                             </div>
                                             <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Completed</span>
                                             {selectedRun === 'Distance' && (

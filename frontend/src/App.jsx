@@ -5,6 +5,7 @@ import ResultsPage from './pages/ResultsPage';
 import OrderOfGoPage from './pages/OrderOfGoPage';
 import StartCompetitionPage from './pages/StartCompetitionPage';
 import DistanceScoringPage from './pages/DistanceScoringPage';
+import MultipleScoringPage from './pages/MultipleScoringPage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/competition/:id/order" element={<OrderOfGoPage />} />
           <Route path="/competition/:id/start" element={<StartCompetitionPage />} />
           <Route path="/competition/:id/score/distance/:teamId" element={<DistanceScoringPage />} />
+          <Route path="/competition/:id/score/multiple/:teamId" element={<MultipleScoringPage />} />
         </Routes>
       </div>
     </BrowserRouter>
