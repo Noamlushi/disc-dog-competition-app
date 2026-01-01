@@ -147,6 +147,42 @@ export default function ResultsPage() {
                             row['Total Score'] = total.toFixed(2);
                         }
 
+                        // Time Trial Columns
+                        if (runType === 'Time Trial') {
+                            // Qualifier Time
+                            const qt = reg.qualifierTime || reg.totalScore || 0;
+                            row['Qualifier Time'] = qt > 0 ? (qt / 1000).toFixed(2) : 'No Time';
+
+                            // Bracket Info
+                            let rank = 'Qualifier';
+                            let finalResult = '-';
+
+                            if (competition && competition.timeTrial && competition.timeTrial.matches) {
+                                const matches = competition.timeTrial.matches;
+                                // Find all matches this team played
+                                const teamMatches = matches.filter(m => m.team1Id === team._id || m.team2Id === team._id);
+
+                                if (teamMatches.length > 0) {
+                                    // Sort by round (16 -> 8 -> 4 -> 2)
+                                    // The smallest round number (2 = Final) is the furthest they went
+                                    teamMatches.sort((a, b) => a.round - b.round);
+                                    const bestMatch = teamMatches[0]; // E.g. Final is round 2
+                                    const isWinner = bestMatch.winnerId === team._id;
+
+                                    if (bestMatch.round === 2) {
+                                        rank = isWinner ? 'Winner 🥇' : 'Runner Up 🥈';
+                                    } else if (bestMatch.round === 4) {
+                                        rank = 'Top 4';
+                                    } else if (bestMatch.round === 8) {
+                                        rank = 'Top 8';
+                                    } else if (bestMatch.round === 16) {
+                                        rank = 'Top 16';
+                                    }
+                                }
+                            }
+                            row['Tournament Rank'] = rank;
+                        }
+
                         if (isTimeBased) {
                             row['Final Result (Time)'] = isCompleted ? reg.totalScore?.toFixed(2) : '-';
                         } else if (!isFreestyle) {

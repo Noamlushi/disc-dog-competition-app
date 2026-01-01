@@ -8,6 +8,8 @@ import DistanceScoringPage from './pages/DistanceScoringPage';
 import MultipleScoringPage from './pages/MultipleScoringPage';
 import FrisagilityScoringPage from './pages/FrisagilityScoringPage';
 import FreestyleScoringPage from './pages/FreestyleScoringPage';
+import TimeTrialManagerPage from './pages/TimeTrialManagerPage';
+import LiveTournamentTree from './components/TimeTrial/LiveTournamentTree';
 
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -28,6 +30,10 @@ function App() {
             <Route path="/competition/:id/score/multiple/:teamId" element={<MultipleScoringPage />} />
             <Route path="/competition/:id/score/frisagility/:teamId" element={<FrisagilityScoringPage />} />
             <Route path="/competition/:id/score/freestyle/:teamId" element={<FreestyleScoringPage />} />
+
+            {/* Time Trial Routes */}
+            <Route path="/competition/:id/time-trial/manager" element={<TimeTrialManagerPage />} />
+            <Route path="/competition/:id/live/time-trial" element={<div className="bg-slate-900 min-h-screen"><LiveTournamentTree competitionId={window.location.pathname.split('/')[2]} /></div>} />
           </Routes>
         </div>
       </BrowserRouter>

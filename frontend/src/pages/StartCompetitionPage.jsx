@@ -113,6 +113,93 @@ export default function StartCompetitionPage() {
         }
     };
 
+    // --- Tournament Management Logic --
+    // We need competition data to start the tournament
+    const [competition, setCompetition] = useState(null);
+    const [showConfirmStart, setShowConfirmStart] = useState(false);
+
+    useEffect(() => {
+        fetch(`http://localhost:3000/api/competitions/${id}`)
+            .then(res => res.json())
+            .then(data => setCompetition(data))
+            .catch(err => console.error("Error fetching comp:", err));
+    }, [id]);
+
+    const generateBracketMatches = (qualifiedTeams, size) => {
+        const matches = [];
+        const createRound = (roundName, numMatches, teamsForRound = [], roundNum) => {
+            const roundMatches = [];
+            for (let i = 0; i < numMatches; i++) {
+                const isFirstRound = teamsForRound.length > 0;
+                const team1 = isFirstRound ? teamsForRound[i] : null;
+                const team2 = isFirstRound ? teamsForRound[teamsForRound.length - 1 - i] : null;
+
+                const nextMatchIndex = Math.floor(i / 2);
+                const nextMatchSlot = (i % 2 === 0) ? 1 : 2;
+
+                let nextRoundPrefix = '';
+                if (numMatches === 8) nextRoundPrefix = 'Qtr';
+                if (numMatches === 4) nextRoundPrefix = 'Semi';
+                if (numMatches === 2) nextRoundPrefix = 'Final';
+
+                const nextMatchId = nextRoundPrefix ? `${nextRoundPrefix}-M${nextMatchIndex + 1}` : null;
+
+                roundMatches.push({
+                    id: `${roundName}-M${i + 1}`,
+                    round: roundNum,
+                    team1Id: team1 ? team1._id : null,
+                    team2Id: team2 ? team2._id : null,
+                    team1Time: 0,
+                    team2Time: 0,
+                    status: (team1 && team2) ? 'active' : 'pending',
+                    nextMatchId,
+                    nextMatchSlot
+                });
+            }
+            return roundMatches;
+        };
+
+        if (size >= 16) matches.push(...createRound('R16', 8, qualifiedTeams, 16));
+        if (size >= 8) {
+            const teams = size === 8 ? qualifiedTeams : [];
+            matches.push(...createRound('Qtr', 4, teams, 8));
+        }
+        if (size >= 4) {
+            const teams = size === 4 ? qualifiedTeams : [];
+            matches.push(...createRound('Semi', 2, teams, 4));
+        }
+        matches.push(...createRound('Final', 1, [], 2));
+        return matches;
+    };
+
+    const startTournament = async (size) => {
+        if (!competition) return;
+
+        // Use the sortedTeams to ensure we get the ordered list
+        const qualifiedTeams = sortedTeams.slice(0, size);
+        const matches = generateBracketMatches(qualifiedTeams, size);
+
+        const updatedComp = {
+            ...competition,
+            timeTrial: {
+                ...competition.timeTrial,
+                status: 'bracket',
+                bracketSize: size,
+                matches: matches
+            }
+        };
+
+        await fetch(`http://localhost:3000/api/competitions/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedComp),
+        });
+
+        // Navigate to the bracket view manager
+        // Ensure the manager defaults to bracket tab by adding a hint or relying on state
+        navigate(`/competition/${id}/time-trial/manager?tab=bracket`);
+    };
+
     const handleEnterResult = (team) => {
         if (selectedRun === 'Distance Beginners' || selectedRun === 'Distance Advanced') {
             navigate(`/competition/${id}/score/distance/${team._id}?runType=${encodeURIComponent(selectedRun)}`);
@@ -122,6 +209,8 @@ export default function StartCompetitionPage() {
             navigate(`/competition/${id}/score/frisagility/${team._id}`);
         } else if (selectedRun === 'Freestyle') {
             navigate(`/competition/${id}/score/freestyle/${team._id}`);
+        } else if (selectedRun === 'Time Trial') {
+            navigate(`/competition/${id}/time-trial/manager?teamId=${team._id}`);
         } else {
             alert(`Scoring for ${selectedRun} not yet implemented`);
         }
@@ -206,8 +295,8 @@ export default function StartCompetitionPage() {
                                 key={type}
                                 onClick={() => setSelectedRun(type)}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${selectedRun === type
-                                        ? 'bg-purple-600 text-white shadow-lg'
-                                        : 'text-gray-500 dark:text-slate-500 hover:text-gray-900 dark:hover:text-slate-300'
+                                    ? 'bg-purple-600 text-white shadow-lg'
+                                    : 'text-gray-500 dark:text-slate-500 hover:text-gray-900 dark:hover:text-slate-300'
                                     }`}
                             >
                                 {type}
@@ -228,8 +317,8 @@ export default function StartCompetitionPage() {
 
                 {/* Leaderboard Content */}
                 <div className="max-w-6xl mx-auto space-y-4">
-                    {/* Header Row */}
-                    <div className="grid grid-cols-12 gap-4 px-6 text-gray-500 dark:text-slate-500 font-bold uppercase text-sm tracking-wider">
+                    {/* Header Row - Hidden on mobile */}
+                    <div className="hidden md:grid grid-cols-12 gap-4 px-6 text-gray-500 dark:text-slate-500 font-bold uppercase text-sm tracking-wider">
                         <div className="col-span-1">Rank</div>
                         <div className="col-span-1">#</div>
                         <div className="col-span-4">Team</div>
@@ -241,7 +330,12 @@ export default function StartCompetitionPage() {
                     <div className="space-y-3">
                         {sortedTeams.map((team, index) => {
                             const reg = team.registrations.find(r => r.runType === selectedRun);
-                            const score = reg?.totalScore || 0;
+                            const rawScore = reg?.totalScore || 0;
+                            const isTimeTrial = ['Time Trial', 'Multiple Challenge'].includes(selectedRun);
+
+                            // Fix Units: Time Trial is stored in ms, need seconds
+                            const displayScore = isTimeTrial ? (rawScore / 1000).toFixed(2) + 's' : rawScore.toFixed(2);
+
                             const isCompleted = reg?.status === 'completed';
                             const rank = index + 1;
 
@@ -263,27 +357,42 @@ export default function StartCompetitionPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     key={team._id}
-                                    className={`grid grid-cols-12 gap-4 px-6 py-5 rounded-2xl border items-center shadow-sm dark:shadow-lg ${rankStyle}`}
+                                    className={`flex flex-col md:grid md:grid-cols-12 gap-2 md:gap-4 px-6 py-4 rounded-2xl border shadow-sm dark:shadow-lg ${rankStyle}`}
                                 >
-                                    <div className="col-span-1 font-black text-2xl flex items-center gap-2">
-                                        {rank}{icon}
+                                    {/* Mobile: Top Row with Rank and Status */}
+                                    <div className="flex md:contents justify-between items-center w-full">
+                                        <div className="flex items-center gap-4 md:contents">
+                                            <div className="col-span-1 font-black text-2xl flex items-center gap-2">
+                                                <span className="md:hidden text-sm font-normal text-gray-400">Rank</span>
+                                                {rank}{icon}
+                                            </div>
+                                            <div className="col-span-1 font-mono text-gray-400 dark:text-slate-500 hidden md:block">
+                                                #{index + 1}
+                                            </div>
+                                        </div>
+
+                                        {/* Mobile Status - Shown top right */}
+                                        <div className="md:col-span-3 flex justify-end">
+                                            {isCompleted ? (
+                                                <span className="px-3 py-1 bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 rounded-full text-xs font-bold border border-green-200 dark:border-green-500/30">COMPLETED</span>
+                                            ) : (
+                                                <span className="px-3 py-1 bg-gray-200 dark:bg-slate-800 text-gray-600 dark:text-slate-500 rounded-full text-xs font-bold">UP NEXT</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="col-span-1 font-mono text-gray-400 dark:text-slate-500">
-                                        #{index + 1}
-                                    </div>
-                                    <div className="col-span-4">
-                                        <div className="font-bold text-xl text-gray-800 dark:text-white">{team.ownerName}</div>
+
+                                    {/* Middle Section: Team Info */}
+                                    <div className="col-span-4 flex flex-col justify-center">
+                                        <div className="font-bold text-xl text-gray-800 dark:text-white leading-tight">{team.ownerName}</div>
                                         <div className="text-sm opacity-60">{team.dogName}</div>
                                     </div>
-                                    <div className="col-span-3 text-right text-3xl font-black font-mono">
-                                        {score.toFixed(2)}
-                                    </div>
-                                    <div className="col-span-3 flex justify-end">
-                                        {isCompleted ? (
-                                            <span className="px-3 py-1 bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 rounded-full text-xs font-bold border border-green-200 dark:border-green-500/30">COMPLETED</span>
-                                        ) : (
-                                            <span className="px-3 py-1 bg-gray-200 dark:bg-slate-800 text-gray-600 dark:text-slate-500 rounded-full text-xs font-bold">UP NEXT</span>
-                                        )}
+
+                                    {/* Score Section */}
+                                    <div className="col-span-3 md:text-right flex items-center md:block justify-between mt-2 md:mt-0 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100 dark:border-slate-800">
+                                        <span className="md:hidden text-sm uppercase font-bold text-gray-400">Score</span>
+                                        <span className="text-3xl font-black font-mono">
+                                            {displayScore}
+                                        </span>
                                     </div>
                                 </motion.div>
                             );
@@ -355,8 +464,8 @@ export default function StartCompetitionPage() {
                                     {team.registrations?.find(r => r.runType === selectedRun)?.status === 'completed' ? (
                                         <div className="flex items-center gap-4">
                                             <div className="text-green-600 dark:text-green-400 font-bold text-xl">
-                                                {selectedRun === 'Multiple Challenge'
-                                                    ? `${team.registrations.find(r => r.runType === selectedRun).totalScore.toFixed(2)}s`
+                                                {selectedRun === 'Multiple Challenge' || selectedRun === 'Time Trial'
+                                                    ? `${(team.registrations.find(r => r.runType === selectedRun).totalScore / (selectedRun === 'Time Trial' ? 1000 : 1)).toFixed(2)}s`
                                                     : `${team.registrations.find(r => r.runType === selectedRun).totalScore.toFixed(1)} pts`
                                                 }
                                             </div>
@@ -388,6 +497,66 @@ export default function StartCompetitionPage() {
                                     )}
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {/* Time Trial Tournament Setup - Only visible for Time Trial */}
+                    {selectedRun === 'Time Trial' && sortedTeams.length > 0 && (
+                        <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                            <h3 className="font-bold text-blue-900 dark:text-blue-300 mb-4 flex items-center gap-2 text-xl">
+                                <Trophy size={24} /> Tournament Actions
+                            </h3>
+
+                            {!showConfirmStart ? (
+                                <div className="flex flex-col md:flex-row gap-4">
+                                    <div className="flex-1">
+                                        <p className="text-sm text-blue-800 dark:text-blue-400 mb-2">
+                                            Create Tournament from current rankings:
+                                        </p>
+                                        <div className="flex gap-2">
+                                            {[16, 8, 4].map(size => (
+                                                <button
+                                                    key={size}
+                                                    onClick={() => setShowConfirmStart(size)}
+                                                    disabled={sortedTeams.length < size}
+                                                    className="flex-1 bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 py-3 rounded-lg border-2 border-blue-100 dark:border-blue-800 font-bold hover:border-blue-300 disabled:opacity-50 transition-colors shadow-sm"
+                                                >
+                                                    Top {size}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {(competition?.timeTrial?.status === 'bracket') && (
+                                        <button
+                                            onClick={() => navigate(`/competition/${id}/time-trial/manager?tab=bracket`)}
+                                            className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 shadow-md flex items-center justify-center gap-2"
+                                        >
+                                            Go to Active Bracket <ArrowLeft className="rotate-180" size={20} />
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="animate-fade-in bg-white dark:bg-slate-800 p-4 rounded-lg shadow-inner">
+                                    <div className="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg mb-4 text-yellow-800 dark:text-yellow-200 text-sm flex items-center gap-2">
+                                        <Flag className="text-yellow-600" size={20} />
+                                        <span><strong>Warning:</strong> Starting the Top {showConfirmStart} will lock qualifiers. This cannot be undone.</span>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={() => startTournament(showConfirmStart)}
+                                            className="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 shadow-lg text-lg"
+                                        >
+                                            Confirm Start
+                                        </button>
+                                        <button
+                                            onClick={() => setShowConfirmStart(null)}
+                                            className="flex-1 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-bold hover:bg-gray-300"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

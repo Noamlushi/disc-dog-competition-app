@@ -21,6 +21,9 @@ const teamSchema = new mongoose.Schema({
             points: Number,
             isFootFault: Boolean
         }],
+        // Phase 9: Time Trial
+        qualifierTime: { type: Number, default: 0 }, // For Time Trial qualifiers
+        bestTime: { type: Number, default: 0 },      // Track personal best in tournament
         // Phase 8: Freestyle Detailed Scoring
         freestyle: {
             dog: {
