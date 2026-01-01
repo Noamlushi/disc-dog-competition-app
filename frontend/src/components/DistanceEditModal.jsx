@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { X, Trash2, Plus, Save, AlertCircle } from 'lucide-react';
 
-export default function DistanceEditModal({ isOpen, onClose, team, onSave }) {
+export default function DistanceEditModal({ isOpen, onClose, team, runType, onSave }) {
     const [attempts, setAttempts] = useState([]);
 
     useEffect(() => {
         if (team && team.registrations) {
-            const reg = team.registrations.find(r => r.runType === 'Distance');
+            const reg = team.registrations.find(r => r.runType === runType);
             if (reg && reg.attempts) {
                 // deep clone to avoid mutating props
                 setAttempts(JSON.parse(JSON.stringify(reg.attempts)));

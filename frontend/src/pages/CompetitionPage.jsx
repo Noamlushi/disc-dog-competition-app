@@ -4,7 +4,7 @@ import { User, Dog, Save, ArrowLeft, BarChart2, Trash2, Edit, ListOrdered, Play 
 import EditTeamModal from '../components/EditTeamModal';
 
 const RUN_TYPES = [
-    'Distance', 'Multiple Challenge', 'Frisgility', 'Shuffle',
+    'Distance Beginners', 'Distance Advanced', 'Multiple Challenge', 'Frisgility', 'Shuffle',
     'Wheel of Fortune', 'Criss Cross', 'Time Trial', 'Freestyle'
 ];
 

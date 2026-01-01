@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Save, X } from 'lucide-react';
 
 export default function DistanceScoringPage() {
     const { id, teamId } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const runType = searchParams.get('runType') || 'Distance Beginners';
 
     const [team, setTeam] = useState(null);
     const [competition, setCompetition] = useState(null);
@@ -21,7 +23,7 @@ export default function DistanceScoringPage() {
                 setTeam(foundTeam);
 
                 // Load existing attempts if any
-                const distanceReg = foundTeam?.registrations?.find(r => r.runType === 'Distance');
+                const distanceReg = foundTeam?.registrations?.find(r => r.runType === runType);
                 if (distanceReg?.attempts) {
                     setAttempts(distanceReg.attempts.map((a, idx) => ({ ...a, id: idx })));
                 }
@@ -84,7 +86,7 @@ export default function DistanceScoringPage() {
 
         // Update the Distance registration
         const updatedRegistrations = team.registrations.map(reg => {
-            if (reg.runType === 'Distance') {
+            if (reg.runType === runType) {
                 return {
                     ...reg,
                     status: 'completed',
@@ -102,7 +104,7 @@ export default function DistanceScoringPage() {
                 body: JSON.stringify({ registrations: updatedRegistrations }),
             });
             alert('Score saved successfully!');
-            navigate(`/competition/${id}/start`);
+            navigate(`/competition/${id}/start?run=${encodeURIComponent(runType)}`);
         } catch (err) {
             console.error('Failed to save:', err);
             alert('Failed to save score');

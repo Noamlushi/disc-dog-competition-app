@@ -4,7 +4,7 @@ import { ArrowLeft, Play, Flag } from 'lucide-react';
 import DistanceEditModal from '../components/DistanceEditModal';
 
 const RUN_TYPES = [
-    'Distance', 'Multiple Challenge', 'Frisgility', 'Shuffle',
+    'Distance Beginners', 'Distance Advanced', 'Multiple Challenge', 'Frisgility', 'Shuffle',
     'Wheel of Fortune', 'Criss Cross', 'Time Trial', 'Freestyle'
 ];
 
@@ -60,7 +60,7 @@ export default function StartCompetitionPage() {
         });
 
         try {
-            await fetch(`http://localhost:3000/api/teams/${teamId}`, {
+            await fetch(`http://localhost:3000/api/teams/${editingTeam._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ registrations: updatedRegistrations }),
@@ -75,8 +75,9 @@ export default function StartCompetitionPage() {
 
     const handleEnterResult = (team) => {
         // For Distance, navigate to the full scoring page
-        if (selectedRun === 'Distance') {
-            navigate(`/competition/${id}/score/distance/${team._id}`);
+        // For Distance, navigate to the full scoring page with query param
+        if (selectedRun === 'Distance Beginners' || selectedRun === 'Distance Advanced') {
+            navigate(`/competition/${id}/score/distance/${team._id}?runType=${encodeURIComponent(selectedRun)}`);
         } else if (selectedRun === 'Multiple Challenge') {
             navigate(`/competition/${id}/score/multiple/${team._id}`);
         } else if (selectedRun === 'Frisgility') { // Internal name matches RUN_TYPES
@@ -149,7 +150,7 @@ export default function StartCompetitionPage() {
                                                 }
                                             </div>
                                             <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Completed</span>
-                                            {selectedRun === 'Distance' && (
+                                            {(selectedRun === 'Distance Beginners' || selectedRun === 'Distance Advanced') && (
                                                 <button
                                                     onClick={() => setEditingTeam(team)}
                                                     className="text-blue-600 hover:text-blue-800 text-sm font-bold underline px-2"
@@ -174,10 +175,12 @@ export default function StartCompetitionPage() {
             </div>
 
             {/* Edit Results Modal - Only for Distance editing */}
-            {selectedRun === 'Distance' && (
+            {/* Edit Results Modal - Only for Distance editing */}
+            {(selectedRun === 'Distance Beginners' || selectedRun === 'Distance Advanced') && (
                 <DistanceEditModal
                     isOpen={!!editingTeam}
                     team={editingTeam}
+                    runType={selectedRun}
                     onClose={() => setEditingTeam(null)}
                     onSave={handleUpdateResult}
                 />

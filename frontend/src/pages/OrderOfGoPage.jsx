@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { ArrowLeft, Save, Calendar, GripVertical } from 'lucide-react';
 
 const RUN_TYPES = [
-    'Distance', 'Multiple Challenge', 'Frisgility', 'Shuffle',
+    'Distance Beginners', 'Distance Advanced', 'Multiple Challenge', 'Frisgility', 'Shuffle',
     'Wheel of Fortune', 'Criss Cross', 'Time Trial', 'Freestyle'
 ];
 
@@ -104,8 +104,8 @@ export default function OrderOfGoPage() {
                         key={type}
                         onClick={() => setSelectedRun(type)}
                         className={`px-6 py-4 font-bold whitespace-nowrap transition-colors ${selectedRun === type
-                                ? 'bg-blue-50 text-blue-900 border-b-2 border-blue-900'
-                                : 'text-gray-500 hover:bg-gray-50'
+                            ? 'bg-blue-50 text-blue-900 border-b-2 border-blue-900'
+                            : 'text-gray-500 hover:bg-gray-50'
                             }`}
                     >
                         {type}
