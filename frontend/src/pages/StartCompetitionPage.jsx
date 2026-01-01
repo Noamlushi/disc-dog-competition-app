@@ -79,6 +79,8 @@ export default function StartCompetitionPage() {
             navigate(`/competition/${id}/score/distance/${team._id}`);
         } else if (selectedRun === 'Multiple Challenge') {
             navigate(`/competition/${id}/score/multiple/${team._id}`);
+        } else if (selectedRun === 'Frisgility') { // Internal name matches RUN_TYPES
+            navigate(`/competition/${id}/score/frisagility/${team._id}`);
         } else {
             // For other run types, could open modal or navigate to other pages
             alert(`Scoring for ${selectedRun} not yet implemented`);

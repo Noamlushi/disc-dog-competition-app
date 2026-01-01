@@ -53,6 +53,25 @@ app.get('/api/competitions/:id', async (req, res) => {
   }
 });
 
+// Delete competition
+app.delete('/api/competitions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedComp = await Competition.findByIdAndDelete(id);
+
+    if (!deletedComp) {
+      return res.status(404).json({ error: 'Competition not found' });
+    }
+
+    // Delete all teams associated with this competition
+    await Team.deleteMany({ competitionId: id });
+
+    res.json({ message: 'Competition deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- Teams API ---
 
 // Get teams for a competition
