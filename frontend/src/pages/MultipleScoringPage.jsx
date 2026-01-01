@@ -107,7 +107,7 @@ export default function MultipleScoringPage() {
                 body: JSON.stringify({ registrations: updatedRegistrations }),
             });
             alert('Score saved successfully!');
-            navigate(`/competition/${id}/start?run=Multiple Challenge`);
+            navigate(`/competition/${id}/judge?run=Multiple%20Challenge`);
         } catch (err) {
             console.error('Failed to save:', err);
             alert('Failed to save score');
@@ -131,18 +131,18 @@ export default function MultipleScoringPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-20 transition-colors duration-300">
             {/* Sticky Header */}
-            <div className="sticky top-0 z-50 bg-white shadow-md border-b-2 border-blue-900">
+            <div className="sticky top-0 z-50 bg-white dark:bg-slate-800 shadow-md border-b-2 border-blue-900 dark:border-blue-700 transition-colors">
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex items-center justify-between mb-3">
                         <button
-                            onClick={() => navigate(-1)}
-                            className="text-blue-600 hover:text-blue-800 flex items-center gap-2 font-semibold"
+                            onClick={() => navigate(`/competition/${id}/judge?run=Multiple%20Challenge`)}
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-2 font-semibold"
                         >
                             <ArrowLeft size={20} /> Back
                         </button>
-                        <h1 className="text-2xl font-bold text-gray-800">
+                        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
                             {team.ownerName} & {team.dogName}
                         </h1>
                         <div className="w-20"></div>
@@ -150,8 +150,8 @@ export default function MultipleScoringPage() {
 
                     {/* Timer Display */}
                     <div className="text-center">
-                        <div className="text-sm text-gray-500 font-semibold mb-2">Time</div>
-                        <div className="text-7xl font-black text-blue-900 font-mono">
+                        <div className="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-2">Time</div>
+                        <div className="text-7xl font-black text-blue-900 dark:text-blue-400 font-mono">
                             {String(minutes).padStart(2, '0')}:
                             {String(seconds).padStart(2, '0')}.
                             <span className="text-5xl">{String(centiseconds).padStart(2, '0')}</span>
@@ -168,7 +168,7 @@ export default function MultipleScoringPage() {
                         onClick={handleStart}
                         disabled={isRunning}
                         className={`py-6 px-8 rounded-xl text-2xl font-bold flex items-center justify-center gap-3 transition-all transform ${isRunning
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? 'bg-gray-300 dark:bg-slate-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
                             : 'bg-green-600 text-white hover:bg-green-700 active:scale-95 shadow-lg'
                             }`}
                     >
@@ -179,7 +179,7 @@ export default function MultipleScoringPage() {
                         onClick={handleStop}
                         disabled={!isRunning || !allStagesCompleted}
                         className={`py-6 px-8 rounded-xl text-2xl font-bold flex items-center justify-center gap-3 transition-all transform ${!isRunning || !allStagesCompleted
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            ? 'bg-gray-300 dark:bg-slate-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
                             : 'bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-lg'
                             }`}
                     >
@@ -189,8 +189,8 @@ export default function MultipleScoringPage() {
                 </div>
 
                 {/* Stage Progress */}
-                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">Course Progress</h3>
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 mb-6 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Course Progress</h3>
                     <div className="space-y-3">
                         {stages.map((stage, index) => {
                             const isCompleted = completedStages[index];
@@ -203,10 +203,10 @@ export default function MultipleScoringPage() {
                                     onClick={() => handleStageClick(index)}
                                     disabled={!isClickable}
                                     className={`w-full py-6 rounded-xl text-2xl font-bold transition-all transform flex items-center justify-between px-8 ${isCompleted
-                                        ? 'bg-gray-400 text-white'
+                                        ? 'bg-gray-400 dark:bg-slate-600 text-white'
                                         : isClickable
                                             ? `bg-gradient-to-r ${stage.color} text-white hover:scale-[1.02] active:scale-[0.98] shadow-lg`
-                                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                            : 'bg-gray-200 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                         }`}
                                 >
                                     <div className="flex items-center gap-4">
@@ -226,9 +226,9 @@ export default function MultipleScoringPage() {
                 </div>
 
                 {/* Instructions */}
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
-                    <h4 className="font-bold text-blue-900 mb-2">Instructions:</h4>
-                    <ol className="list-decimal list-inside space-y-1 text-blue-800">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-900/50 rounded-xl p-6 mb-6 transition-colors">
+                    <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2">Instructions:</h4>
+                    <ol className="list-decimal list-inside space-y-1 text-blue-800 dark:text-blue-400">
                         <li>Click "Start Run" to begin the timer</li>
                         <li>Click each catch button in order as the dog completes them</li>
                         <li>After all 4 catches are completed, click "Finish Run"</li>
@@ -241,7 +241,7 @@ export default function MultipleScoringPage() {
                     onClick={handleSave}
                     disabled={isRunning || time === 0}
                     className={`w-full py-5 rounded-xl text-2xl font-bold shadow-lg flex items-center justify-center gap-3 transition-all transform ${isRunning || time === 0
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-gray-300 dark:bg-slate-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
                         : 'bg-green-600 text-white hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98]'
                         }`}
                 >

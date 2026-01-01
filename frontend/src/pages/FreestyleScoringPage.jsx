@@ -165,12 +165,12 @@ export default function FreestyleScoringPage() {
         };
 
         return (
-            <div className="bg-white p-4 rounded-xl shadow border border-gray-100 mb-4">
-                <label className="block font-bold text-lg text-gray-700 mb-2">{label}</label>
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow border border-gray-100 dark:border-slate-700 mb-4 transition-colors">
+                <label className="block font-bold text-lg text-gray-700 dark:text-gray-300 mb-2">{label}</label>
                 <div className="flex justify-between items-center gap-2">
                     <div className="flex gap-1">
-                        <button onClick={() => update(-1.0)} className="w-12 h-12 rounded-lg bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 active:scale-95 transition-all">-1</button>
-                        <button onClick={() => update(-0.1)} className="w-12 h-12 rounded-lg bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 active:scale-95 transition-all">-.1</button>
+                        <button onClick={() => update(-1.0)} className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 font-bold hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95 transition-all">-1</button>
+                        <button onClick={() => update(-0.1)} className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 font-bold hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95 transition-all">-.1</button>
                     </div>
 
                     <input
@@ -184,12 +184,12 @@ export default function FreestyleScoringPage() {
                             if (val < 0) val = 0;
                             onChange(val);
                         }}
-                        className="w-20 h-12 text-center text-3xl font-black text-blue-900 border-b-2 border-blue-100 focus:border-blue-500 outline-none"
+                        className="w-20 h-12 text-center text-3xl font-black text-blue-900 dark:text-blue-400 border-b-2 border-blue-100 dark:border-blue-800 bg-transparent focus:border-blue-500 outline-none"
                     />
 
                     <div className="flex gap-1">
-                        <button onClick={() => update(0.1)} className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 font-bold hover:bg-blue-100 active:scale-95 transition-all">+.1</button>
-                        <button onClick={() => update(1.0)} className="w-12 h-12 rounded-lg bg-blue-100 text-blue-700 font-bold hover:bg-blue-200 active:scale-95 transition-all">+1</button>
+                        <button onClick={() => update(0.1)} className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 active:scale-95 transition-all">+.1</button>
+                        <button onClick={() => update(1.0)} className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-bold hover:bg-blue-200 dark:hover:bg-blue-900/60 active:scale-95 transition-all">+1</button>
                     </div>
                 </div>
             </div>
@@ -201,21 +201,23 @@ export default function FreestyleScoringPage() {
     if (!team) return <div className="p-8 text-center text-xl">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-20 transition-colors duration-300">
             {/* Header */}
-            <div className="bg-white shadow sticky top-0 z-10">
+            <div className="bg-white dark:bg-slate-800 shadow sticky top-0 z-10 transition-colors">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <button onClick={() => judgeRole ? setJudgeRole(null) : navigate(-1)} className="text-gray-600 flex items-center gap-2">
+                    <button onClick={() => judgeRole ? setJudgeRole(null) : navigate(`/competition/${id}/judge?run=Freestyle`)} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-2">
                         <ArrowLeft size={20} /> Back
                     </button>
                     <div className="text-center">
-                        <h1 className="font-bold text-xl">{team.ownerName} & {team.dogName}</h1>
-                        <p className="text-xs text-gray-500">Freestyle</p>
+                        <h1 className="font-bold text-xl dark:text-white">{team.ownerName} & {team.dogName}</h1>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Freestyle</p>
                     </div>
                     {/* Timer */}
                     <div
                         onClick={() => setIsTimerRunning(!isTimerRunning)}
-                        className={`px-4 py-2 rounded-lg font-mono text-2xl font-black cursor-pointer select-none ${timeLeft <= 10 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-800'
+                        className={`px-4 py-2 rounded-lg font-mono text-2xl font-black cursor-pointer select-none ${timeLeft <= 10
+                            ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 animate-pulse'
+                            : 'bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200'
                             }`}
                     >
                         {formatTime(timeLeft)}
@@ -228,37 +230,37 @@ export default function FreestyleScoringPage() {
                 {/* ROLE SELECTION view */}
                 {!judgeRole && (
                     <div className="grid grid-cols-1 gap-6">
-                        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Select Judge Role</h2>
+                        <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-4">Select Judge Role</h2>
 
-                        <button onClick={() => setJudgeRole('dog')} className="p-8 bg-white rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-yellow-500 flex items-center gap-6">
-                            <div className="bg-yellow-100 p-4 rounded-full text-yellow-700"><Star size={32} /></div>
+                        <button onClick={() => setJudgeRole('dog')} className="p-8 bg-white dark:bg-slate-800 rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-yellow-500 flex items-center gap-6">
+                            <div className="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-full text-yellow-700 dark:text-yellow-500"><Star size={32} /></div>
                             <div className="text-left">
-                                <h3 className="text-2xl font-black text-gray-800">Dog Judge</h3>
-                                <p className="text-gray-500">Prey, Retrieve, Athleticism, Grip</p>
+                                <h3 className="text-2xl font-black text-gray-800 dark:text-white">Dog Judge</h3>
+                                <p className="text-gray-500 dark:text-gray-400">Prey, Retrieve, Athleticism, Grip</p>
                             </div>
                         </button>
 
-                        <button onClick={() => setJudgeRole('player')} className="p-8 bg-white rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-blue-500 flex items-center gap-6">
-                            <div className="bg-blue-100 p-4 rounded-full text-blue-700"><Gavel size={32} /></div>
+                        <button onClick={() => setJudgeRole('player')} className="p-8 bg-white dark:bg-slate-800 rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-blue-500 flex items-center gap-6">
+                            <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full text-blue-700 dark:text-blue-400"><Gavel size={32} /></div>
                             <div className="text-left">
-                                <h3 className="text-2xl font-black text-gray-800">Player Judge</h3>
-                                <p className="text-gray-500">Presentation, Releases, Flow...</p>
+                                <h3 className="text-2xl font-black text-gray-800 dark:text-white">Player Judge</h3>
+                                <p className="text-gray-500 dark:text-gray-400">Presentation, Releases, Flow...</p>
                             </div>
                         </button>
 
-                        <button onClick={() => setJudgeRole('team')} className="p-8 bg-white rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-purple-500 flex items-center gap-6">
-                            <div className="bg-purple-100 p-4 rounded-full text-purple-700"><ClipboardType size={32} /></div>
+                        <button onClick={() => setJudgeRole('team')} className="p-8 bg-white dark:bg-slate-800 rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-purple-500 flex items-center gap-6">
+                            <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-full text-purple-700 dark:text-purple-400"><ClipboardType size={32} /></div>
                             <div className="text-left">
-                                <h3 className="text-2xl font-black text-gray-800">Team Judge</h3>
-                                <p className="text-gray-500">Elements (Over, Vault, Multipull...)</p>
+                                <h3 className="text-2xl font-black text-gray-800 dark:text-white">Team Judge</h3>
+                                <p className="text-gray-500 dark:text-gray-400">Elements (Over, Vault, Multipull...)</p>
                             </div>
                         </button>
 
-                        <button onClick={() => setJudgeRole('execution')} className="p-8 bg-white rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-green-500 flex items-center gap-6">
-                            <div className="bg-green-100 p-4 rounded-full text-green-700"><Check size={32} /></div>
+                        <button onClick={() => setJudgeRole('execution')} className="p-8 bg-white dark:bg-slate-800 rounded-2xl shadow hover:shadow-lg transition-all border-l-8 border-green-500 flex items-center gap-6">
+                            <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-full text-green-700 dark:text-green-400"><Check size={32} /></div>
                             <div className="text-left">
-                                <h3 className="text-2xl font-black text-gray-800">Execution Judge</h3>
-                                <p className="text-gray-500">Catch Ratio Counter</p>
+                                <h3 className="text-2xl font-black text-gray-800 dark:text-white">Execution Judge</h3>
+                                <p className="text-gray-500 dark:text-gray-400">Catch Ratio Counter</p>
                             </div>
                         </button>
                     </div>
@@ -267,18 +269,18 @@ export default function FreestyleScoringPage() {
                 {/* DOG JUDGE */}
                 {judgeRole === 'dog' && (
                     <div className="space-y-8">
-                        <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-6 text-yellow-800 font-bold flex items-center gap-2">
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800 mb-6 text-yellow-800 dark:text-yellow-400 font-bold flex items-center gap-2">
                             <Star size={20} /> Dog Judge Interface
                         </div>
-                        <div className="bg-white p-6 rounded-2xl shadow space-y-4">
+                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow space-y-4 transition-colors">
                             <StepScore label="Prey Drive" value={dogScores.prey} onChange={v => setDogScores(p => ({ ...p, prey: v }))} />
                             <StepScore label="Retrieving" value={dogScores.retrieve} onChange={v => setDogScores(p => ({ ...p, retrieve: v }))} />
                             <StepScore label="Athleticism" value={dogScores.athleticism} onChange={v => setDogScores(p => ({ ...p, athleticism: v }))} />
                             <StepScore label="Grip" value={dogScores.grip} onChange={v => setDogScores(p => ({ ...p, grip: v }))} />
 
-                            <div className="mt-8 pt-6 border-t flex justify-between items-center">
-                                <span className="font-bold text-gray-500">Total Dog Score</span>
-                                <span className="text-3xl font-black text-yellow-600">
+                            <div className="mt-8 pt-6 border-t dark:border-slate-700 flex justify-between items-center">
+                                <span className="font-bold text-gray-500 dark:text-gray-400">Total Dog Score</span>
+                                <span className="text-3xl font-black text-yellow-600 dark:text-yellow-500">
                                     {(dogScores.prey + dogScores.retrieve + dogScores.athleticism + dogScores.grip).toFixed(1)}
                                 </span>
                             </div>
@@ -289,18 +291,18 @@ export default function FreestyleScoringPage() {
                 {/* PLAYER JUDGE */}
                 {judgeRole === 'player' && (
                     <div className="space-y-8">
-                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 mb-6 text-blue-800 font-bold flex items-center gap-2">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 mb-6 text-blue-800 dark:text-blue-400 font-bold flex items-center gap-2">
                             <Gavel size={20} /> Player Judge Interface
                         </div>
-                        <div className="bg-white p-6 rounded-2xl shadow space-y-4">
+                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow space-y-4 transition-colors">
                             <StepScore label="Field Presentation" value={playerScores.fieldPresentation} onChange={v => setPlayerScores(p => ({ ...p, fieldPresentation: v }))} />
                             <StepScore label="Releases & Throws" value={playerScores.releases} onChange={v => setPlayerScores(p => ({ ...p, releases: v }))} />
                             <StepScore label="Disc Management" value={playerScores.discManagement} onChange={v => setPlayerScores(p => ({ ...p, discManagement: v }))} />
                             <StepScore label="Flow (Joint Movement)" value={playerScores.flow} onChange={v => setPlayerScores(p => ({ ...p, flow: v }))} />
 
-                            <div className="mt-8 pt-6 border-t flex justify-between items-center">
-                                <span className="font-bold text-gray-500">Total Player Score</span>
-                                <span className="text-3xl font-black text-blue-600">
+                            <div className="mt-8 pt-6 border-t dark:border-slate-700 flex justify-between items-center">
+                                <span className="font-bold text-gray-500 dark:text-gray-400">Total Player Score</span>
+                                <span className="text-3xl font-black text-blue-600 dark:text-blue-400">
                                     {(playerScores.fieldPresentation + playerScores.releases + playerScores.discManagement + playerScores.flow).toFixed(1)}
                                 </span>
                             </div>
@@ -311,7 +313,7 @@ export default function FreestyleScoringPage() {
                 {/* TEAM JUDGE */}
                 {judgeRole === 'team' && (
                     <div className="space-y-8">
-                        <div className="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-6 text-purple-800 font-bold flex items-center gap-2">
+                        <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800 mb-6 text-purple-800 dark:text-purple-400 font-bold flex items-center gap-2">
                             <ClipboardType size={20} /> Team Elements (Score 0-2.5)
                         </div>
                         <div className="space-y-4">
@@ -323,11 +325,11 @@ export default function FreestyleScoringPage() {
                             <StepScore label="Passing" value={teamScores.passing} onChange={v => setTeamScores(p => ({ ...p, passing: v }))} />
                             <StepScore label="Distance Movement" value={teamScores.distanceMovement} onChange={v => setTeamScores(p => ({ ...p, distanceMovement: v }))} />
 
-                            <div className="bg-white p-6 rounded-2xl shadow mt-6">
-                                <div className="text-sm text-gray-500 mb-2">Note: System automatically counts Top 4 elements</div>
+                            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow mt-6 transition-colors">
+                                <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Note: System automatically counts Top 4 elements</div>
                                 <div className="flex justify-between items-center">
-                                    <span className="font-bold text-gray-500">Calculated Score</span>
-                                    <span className="text-3xl font-black text-purple-600">
+                                    <span className="font-bold text-gray-500 dark:text-gray-400">Calculated Score</span>
+                                    <span className="text-3xl font-black text-purple-600 dark:text-purple-400">
                                         {(
                                             Object.values(teamScores)
                                                 .sort((a, b) => b - a) // Sort descending
@@ -344,25 +346,25 @@ export default function FreestyleScoringPage() {
                 {/* EXECUTION JUDGE */}
                 {judgeRole === 'execution' && (
                     <div className="space-y-8">
-                        <div className="bg-green-50 p-4 rounded-xl border border-green-200 mb-6 text-green-800 font-bold flex items-center gap-2">
+                        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800 mb-6 text-green-800 dark:text-green-400 font-bold flex items-center gap-2">
                             <Check size={20} /> Execution Judge (Ratio)
                         </div>
 
                         {/* Score Display */}
-                        <div className="bg-white p-6 rounded-2xl shadow text-center mb-6">
+                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow text-center mb-6 transition-colors">
                             <div className="flex justify-between items-center mb-4">
-                                <span className="font-bold text-gray-500">Execution Score (Max 10)</span>
-                                <span className="text-4xl font-black text-green-600">
+                                <span className="font-bold text-gray-500 dark:text-gray-400">Execution Score (Max 10)</span>
+                                <span className="text-4xl font-black text-green-600 dark:text-green-400">
                                     {executionScores.throws > 0
                                         ? ((executionScores.catches / executionScores.throws) * 10).toFixed(2)
                                         : '0.00'
                                     }
                                 </span>
                             </div>
-                            <div className="flex justify-center gap-8 text-sm text-gray-500 font-mono">
-                                <div>Throws: <span className="font-bold text-gray-800">{executionScores.throws}</span></div>
-                                <div>Catches: <span className="font-bold text-green-600">{executionScores.catches}</span></div>
-                                <div>Misses: <span className="font-bold text-red-500">{executionScores.throws - executionScores.catches}</span></div>
+                            <div className="flex justify-center gap-8 text-sm text-gray-500 dark:text-gray-400 font-mono">
+                                <div>Throws: <span className="font-bold text-gray-800 dark:text-gray-200">{executionScores.throws}</span></div>
+                                <div>Catches: <span className="font-bold text-green-600 dark:text-green-400">{executionScores.catches}</span></div>
+                                <div>Misses: <span className="font-bold text-red-500 dark:text-red-400">{executionScores.throws - executionScores.catches}</span></div>
                             </div>
                         </div>
 
@@ -370,7 +372,7 @@ export default function FreestyleScoringPage() {
                         <div className="grid grid-cols-2 gap-6">
                             <button
                                 onClick={() => setExecutionScores(p => ({ throws: p.throws + 1, catches: p.catches + 1 }))}
-                                className="py-8 bg-green-500 text-white rounded-2xl shadow-lg hover:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center gap-2"
+                                className="py-8 bg-green-500 hover:bg-green-600 text-white rounded-2xl shadow-lg active:scale-95 transition-all flex flex-col items-center justify-center gap-2"
                             >
                                 <Check size={48} />
                                 <span className="text-2xl font-black">CATCH</span>
@@ -379,7 +381,7 @@ export default function FreestyleScoringPage() {
 
                             <button
                                 onClick={() => setExecutionScores(p => ({ ...p, throws: p.throws + 1 }))}
-                                className="py-8 bg-red-100 text-red-600 rounded-2xl border-2 border-red-200 hover:bg-red-200 active:scale-95 transition-all flex flex-col items-center justify-center gap-2"
+                                className="py-8 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl border-2 border-red-200 dark:border-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/40 active:scale-95 transition-all flex flex-col items-center justify-center gap-2"
                             >
                                 <X size={48} />
                                 <span className="text-2xl font-black">MISS</span>
@@ -392,13 +394,13 @@ export default function FreestyleScoringPage() {
                             <div className="text-center">
                                 <span className="text-xs text-gray-400 uppercase">Adjust Catch</span>
                                 <div className="flex justify-center gap-2 mt-1">
-                                    <button onClick={() => setExecutionScores(p => ({ ...p, catches: Math.max(0, p.catches - 1), throws: Math.max(0, p.throws - 1) }))} className="w-8 h-8 bg-gray-200 rounded text-gray-600 font-bold">-</button>
+                                    <button onClick={() => setExecutionScores(p => ({ ...p, catches: Math.max(0, p.catches - 1), throws: Math.max(0, p.throws - 1) }))} className="w-8 h-8 bg-gray-200 dark:bg-slate-700 rounded text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-300 dark:hover:bg-slate-600">-</button>
                                 </div>
                             </div>
                             <div className="text-center">
                                 <span className="text-xs text-gray-400 uppercase">Adjust Miss</span>
                                 <div className="flex justify-center gap-2 mt-1">
-                                    <button onClick={() => setExecutionScores(p => ({ ...p, throws: Math.max(0, p.throws - 1) }))} className="w-8 h-8 bg-gray-200 rounded text-gray-600 font-bold">-</button>
+                                    <button onClick={() => setExecutionScores(p => ({ ...p, throws: Math.max(0, p.throws - 1) }))} className="w-8 h-8 bg-gray-200 dark:bg-slate-700 rounded text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-300 dark:hover:bg-slate-600">-</button>
                                 </div>
                             </div>
                         </div>
@@ -410,11 +412,11 @@ export default function FreestyleScoringPage() {
 
             {/* Sticky Save Button (only when role selected) */}
             {judgeRole && (
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-800 border-t dark:border-slate-700 transition-colors">
                     <div className="container mx-auto max-w-2xl">
                         <button
                             onClick={handleSave}
-                            className="w-full py-4 bg-gray-900 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-gray-800 flex items-center justify-center gap-2"
+                            className="w-full py-4 bg-gray-900 dark:bg-slate-700 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-gray-800 dark:hover:bg-slate-600 flex items-center justify-center gap-2"
                         >
                             <Save size={24} /> Save {judgeRole.charAt(0).toUpperCase() + judgeRole.slice(1)} Score
                         </button>

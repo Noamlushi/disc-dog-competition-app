@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { ArrowLeft, Save, Calendar, GripVertical } from 'lucide-react';
 
@@ -10,6 +10,7 @@ const RUN_TYPES = [
 
 export default function OrderOfGoPage() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [teams, setTeams] = useState([]);
     const [selectedRun, setSelectedRun] = useState(RUN_TYPES[0]);
     const [orderedTeams, setOrderedTeams] = useState([]);
@@ -68,10 +69,7 @@ export default function OrderOfGoPage() {
         try {
             await Promise.all(updates);
             alert('Order saved successfully!');
-            // Refresh main teams list to ensure sync
-            const res = await fetch(`http://localhost:3000/api/competitions/${id}/teams`);
-            const data = await res.json();
-            setTeams(data);
+            navigate(`/competition/${id}/start`);
         } catch (err) {
             console.error(err);
             alert('Failed to save order');
