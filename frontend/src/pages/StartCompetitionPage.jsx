@@ -82,6 +82,8 @@ export default function StartCompetitionPage() {
             navigate(`/competition/${id}/score/multiple/${team._id}`);
         } else if (selectedRun === 'Frisgility') { // Internal name matches RUN_TYPES
             navigate(`/competition/${id}/score/frisagility/${team._id}`);
+        } else if (selectedRun === 'Freestyle') {
+            navigate(`/competition/${id}/score/freestyle/${team._id}`);
         } else {
             // For other run types, could open modal or navigate to other pages
             alert(`Scoring for ${selectedRun} not yet implemented`);
@@ -156,6 +158,14 @@ export default function StartCompetitionPage() {
                                                     className="text-blue-600 hover:text-blue-800 text-sm font-bold underline px-2"
                                                 >
                                                     Edit Results
+                                                </button>
+                                            )}
+                                            {selectedRun === 'Freestyle' && (
+                                                <button
+                                                    onClick={() => handleEnterResult(team)}
+                                                    className="text-blue-600 hover:text-blue-800 text-sm font-bold underline px-2"
+                                                >
+                                                    Continue Judging
                                                 </button>
                                             )}
                                         </div>

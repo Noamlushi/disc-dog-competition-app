@@ -79,6 +79,7 @@ export default function ResultsPage() {
                         const isCompleted = reg?.status === 'completed';
                         const isDistance = runType.includes('Distance') || runType === 'Distance Beginners';
                         const isTimeBased = ['Multiple Challenge', 'Time Trial'].includes(runType);
+                        const isFreestyle = runType === 'Freestyle';
 
                         const row = {
                             'Owner Name': team.ownerName || '-',
@@ -97,18 +98,75 @@ export default function ResultsPage() {
                             }
                         }
 
+                        // Freestyle Columns
+                        // Freestyle Columns
+                        if (isFreestyle) {
+                            const f = reg?.freestyle || {};
+                            const dog = f.dog || {};
+                            const player = f.player || {};
+                            const teamScores = f.team || {};
+                            const exec = f.execution || {};
+
+                            // Safe Access Helpers
+                            const val = (v) => (v !== undefined && v !== null) ? Number(v) : 0;
+
+                            row['Prey'] = val(dog.prey);
+                            row['Retrieve'] = val(dog.retrieve);
+                            row['Athleticism'] = val(dog.athleticism);
+                            row['Grip'] = val(dog.grip);
+
+                            row['Field Pres.'] = val(player.fieldPresentation);
+                            row['Releases'] = val(player.releases);
+                            row['Disc Mgmt.'] = val(player.discManagement);
+                            row['Flow'] = val(player.flow);
+
+                            // Safe Team Items Calculation
+                            let top4 = 0;
+                            try {
+                                top4 = Object.values(teamScores || {})
+                                    .map(v => val(v))
+                                    .sort((a, b) => b - a)
+                                    .slice(0, 4)
+                                    .reduce((a, b) => a + b, 0);
+                            } catch (err) { console.error('Error calculating team scores', err); }
+                            row['Team Items (Top 4)'] = top4;
+
+                            // Safe Execution Calculation
+                            const throws = val(exec.throws);
+                            const catches = val(exec.catches);
+                            const ratio = throws > 0 ? (catches / throws) : 0;
+
+                            row['Exec Ratio'] = `${catches}/${throws}`;
+                            row['Exec Score'] = (ratio * 10).toFixed(2);
+
+                            // Recalculate Total for export consistency
+                            const dogSum = val(dog.prey) + val(dog.retrieve) + val(dog.athleticism) + val(dog.grip);
+                            const playerSum = val(player.fieldPresentation) + val(player.releases) + val(player.discManagement) + val(player.flow);
+
+                            const total = dogSum + playerSum + top4 + (ratio * 10);
+                            row['Total Score'] = total.toFixed(2);
+                        }
+
                         if (isTimeBased) {
                             row['Final Result (Time)'] = isCompleted ? reg.totalScore?.toFixed(2) : '-';
-                        } else {
+                        } else if (!isFreestyle) {
                             row['Final Result (Score)'] = isCompleted ? reg.totalScore?.toFixed(1) : '-';
                         }
+
                         row['Status'] = isCompleted ? 'Completed' : 'טרם בוצע';
                         return row;
                     });
 
                     const ws = XLSX.utils.json_to_sheet(data);
-                    const wscols = [{ wch: 20 }, { wch: 15 }, { wch: 20 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 15 }, { wch: 15 }];
+
+                    const wscols = [{ wch: 20 }, { wch: 15 }, { wch: 20 }];
+                    if (runType === 'Freestyle') {
+                        for (let i = 0; i < 15; i++) wscols.push({ wch: 12 });
+                    } else {
+                        wscols.push({ wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 15 }, { wch: 15 });
+                    }
                     ws['!cols'] = wscols;
+
                     XLSX.utils.book_append_sheet(wb, ws, runType.substring(0, 31));
                 }
             });

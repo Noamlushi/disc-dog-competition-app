@@ -7,6 +7,7 @@ import StartCompetitionPage from './pages/StartCompetitionPage';
 import DistanceScoringPage from './pages/DistanceScoringPage';
 import MultipleScoringPage from './pages/MultipleScoringPage';
 import FrisagilityScoringPage from './pages/FrisagilityScoringPage';
+import FreestyleScoringPage from './pages/FreestyleScoringPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/competition/:id/score/distance/:teamId" element={<DistanceScoringPage />} />
           <Route path="/competition/:id/score/multiple/:teamId" element={<MultipleScoringPage />} />
           <Route path="/competition/:id/score/frisagility/:teamId" element={<FrisagilityScoringPage />} />
+          <Route path="/competition/:id/score/freestyle/:teamId" element={<FreestyleScoringPage />} />
         </Routes>
       </div>
     </BrowserRouter>
