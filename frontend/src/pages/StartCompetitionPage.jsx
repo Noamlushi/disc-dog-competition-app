@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, Play, Flag, Gavel, MonitorPlay, Trophy } from 'lucide-react';
+import { ArrowLeft, Play, Flag, Gavel, MonitorPlay, Trophy, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DistanceEditModal from '../components/DistanceEditModal';
 import ThemeToggle from '../components/ThemeToggle';
@@ -61,16 +61,28 @@ export default function StartCompetitionPage() {
                 const statusB = regB?.status === 'completed' ? 1 : 0;
                 if (statusA !== statusB) return statusB - statusA;
 
-                // Score Descending (Higher is better generally, except Time Trial)
-                const isTime = ['Multiple Challenge', 'Time Trial'].includes(selectedRun);
-                if (isTime) {
-                    // Lower time is better (assuming non-zero)
-                    const scoreA = regA.totalScore || 9999;
-                    const scoreB = regB.totalScore || 9999;
-                    return scoreA - scoreB;
-                } else {
-                    return (regB.totalScore || 0) - (regA.totalScore || 0);
+                // Score Descending (Higher is better generally, except Time Trial) - Only for Completed
+                if (statusA === 1) { // Both are completed (since statusA == statusB)
+                    const isTime = ['Multiple Challenge', 'Time Trial'].includes(selectedRun);
+                    if (isTime) {
+                        // Lower time is better (assuming non-zero)
+                        const scoreA = regA.totalScore || 9999;
+                        const scoreB = regB.totalScore || 9999;
+                        return scoreA - scoreB;
+                    } else {
+                        return (regB.totalScore || 0) - (regA.totalScore || 0);
+                    }
                 }
+
+                // If NOT completed (Pending), sort by Scheduled Time
+                if (regA?.scheduledTime && regB?.scheduledTime) {
+                    return regA.scheduledTime.localeCompare(regB.scheduledTime);
+                }
+
+                // Fallback: Sort by Order
+                const orderA = regA?.order || 999;
+                const orderB = regB?.order || 999;
+                return orderA - orderB;
 
             } else {
                 // ORDER OF GO LOGIC
@@ -372,11 +384,19 @@ export default function StartCompetitionPage() {
                                         </div>
 
                                         {/* Mobile Status - Shown top right */}
-                                        <div className="md:col-span-3 flex justify-end">
+                                        <div className="md:col-span-3 flex flex-col items-end gap-1">
                                             {isCompleted ? (
                                                 <span className="px-3 py-1 bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 rounded-full text-xs font-bold border border-green-200 dark:border-green-500/30">COMPLETED</span>
                                             ) : (
                                                 <span className="px-3 py-1 bg-gray-200 dark:bg-slate-800 text-gray-600 dark:text-slate-500 rounded-full text-xs font-bold">UP NEXT</span>
+                                            )}
+
+                                            {/* Scheduled Time Display */}
+                                            {reg?.scheduledTime && !isCompleted && (
+                                                <div className="flex items-center gap-1 text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-md">
+                                                    <Clock size={14} />
+                                                    {reg.scheduledTime}
+                                                </div>
                                             )}
                                         </div>
                                     </div>

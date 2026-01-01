@@ -13,6 +13,7 @@ const teamSchema = new mongoose.Schema({
         totalScore: { type: Number, default: 0 },
         // Phase 7: Scheduling
         arena: { type: String },
+        scheduledTime: { type: String }, // Format "HH:mm"
         startTime: { type: Date },
         attempts: [{
             zone: Number,

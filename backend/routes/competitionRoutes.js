@@ -15,4 +15,7 @@ router.put('/:id/order', competitionController.updateOrder);
 router.get('/:id/teams', teamController.getTeamsByCompetition);
 router.post('/:id/teams', teamController.addTeam);
 
+// Utility Routes
+router.post('/schedule', competitionController.generateSchedule);
+
 module.exports = router;
